@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ASTR408 notes</title>
+  <style>
+    :root{
+      --bg:#0b1020; --card:#111a33; --text:#e9eefc; --muted:#b8c4ee;
+      --accent:#7aa2ff; --line:rgba(255,255,255,0.12);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1100px 700px at 20% 0%, rgba(122,162,255,.22), transparent 60%),
+                  radial-gradient(900px 700px at 80% 20%, rgba(122,162,255,.16), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      line-height:1.55;
+    }
+    header{max-width:1050px; margin:0 auto; padding:42px 18px 18px;}
+    h1{margin:0 0 6px; font-size: clamp(26px, 3vw, 40px);}
+    .sub{margin:0; color:var(--muted); max-width:80ch;}
+    .meta{margin-top:12px; display:flex; gap:10px; flex-wrap:wrap; color:var(--muted); font-size:14px;}
+    .pill{border:1px solid var(--line); background:rgba(255,255,255,.04); padding:6px 10px; border-radius:999px;}
+    main{max-width:1050px; margin:0 auto; padding:18px; display:grid; gap:14px;}
+    .card{
+      border:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
+      border-radius:16px;
+      padding:16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,.25);
+    }
+    h2{margin:0 0 10px; font-size:20px;}
+    h3{margin:14px 0 6px; font-size:16px; color:var(--accent);}
+    p{margin:8px 0; color:var(--muted);}
+    ul{margin:8px 0 0 18px; color:var(--muted);}
+    code{background:rgba(0,0,0,.35); border:1px solid var(--line); padding:2px 6px; border-radius:8px; color:var(--text);}
+    a{color:var(--accent); text-decoration:none}
+    a:hover{text-decoration:underline}
+    .grid{display:grid; grid-template-columns:1fr; gap:14px;}
+    @media (min-width:900px){ .grid{grid-template-columns:1fr 1fr;} }
+    .toc a{display:inline-block; margin:6px 10px 0 0; padding:6px 10px; border:1px solid var(--line);
+           border-radius:999px; background:rgba(255,255,255,.04);}
+    .small{font-size:14px;}
+    .math{margin-top:10px; padding-top:10px; border-top:1px dashed var(--line);}
+    .hidden{display:none;}
+    button{
+      cursor:pointer; border:1px solid var(--line);
+      background:rgba(255,255,255,.06); color:var(--text);
+      padding:8px 10px; border-radius:12px;
+    }
+    button:hover{background:rgba(255,255,255,.10);}
+    footer{max-width:1050px; margin:0 auto; padding:18px 18px 40px; color:var(--muted); font-size:14px;}
+    .note{border-left:3px solid var(--accent); padding:8px 10px; background:rgba(122,162,255,.08); border-radius:10px;}
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>STATISTICAL ANALYSIS IN PHYSICS AND ASTRONOMY</h1>
+    <p class="sub">
+      Compilation of concepts learned across the semester, organized by the course schedule of Fall 2025.
+    </p>
+    <div class="meta">
+      <span class="pill">Name: Arturo Amarilla</span>
+      <span class="pill">Course: ASTR 408</span>
+    </div>
+
+    <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+      <span class="small" style="color:var(--muted)">Use the chips below to jump to a topic.</span>
+    </div>
+
+    <nav class="toc" aria-label="Table of contents" style="margin-top:12px;">
+      <a href="#foundations">Foundations</a>
+      <a href="#nonparametrics">Nonparametrics</a>
+      <a href="#regression">Regression</a>
+      <a href="#smoothing">Smoothing</a>
+      <a href="#pca">Multivariate/PCA</a>
+      <a href="#timeseries">Time Series</a>
+      <a href="#clustering">Clustering</a>
+      <a href="#truncated">Truncated Data</a>
+      <a href="#spatial">Spatial Point Processes</a>
+      <a href="#fourier">Wavelets/Fourier</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="card" id="foundations">
+      <h2>1) Mathematical Foundations: Probability, Distributions, CI & Hypothesis Testing</h2>
+      Astronomical data analysis begins with probabilistic modeling of measurements and physical processes. In practice, observed quantities are treated as random variables whose distributions reflect both intrinsic astrophysical variability and measurement uncertainty. The course emphasized probability density functions (PDFs), expectation values, and variances as the foundation for statistical inference.
+      Gaussian distributions arise naturally when errors result from many independent processes and are commonly used to model photometric or spectroscopic uncertainties. Poisson distributions describe discrete count data such as photon arrivals in X-ray and gamma-ray astronomy, where the variance equals the mean. Recognizing the appropriate distribution is critical, as incorrect assumptions lead to biased parameter estimates and misleading uncertainties.
+      Confidence intervals and hypothesis testing provide a frequentist framework for quantifying uncertainty and evaluating models. Confidence intervals represent ranges that would contain the true parameter value in repeated experiments, while hypothesis tests quantify consistency between data and a null model using test statistics and p-values. The book emphasizes caution in over-interpreting p-values and stresses understanding their dependence on sample size and noise assumptions.
+      
+      <h3>What I learned</h3>
+      <p>
+        A random variable <em>X</em> with probability density function <em>f(x)</em> satisfies:
+      </p>
+        <p>
+        E[X] = ∫ x f(x) dx, &nbsp;&nbsp; Var(X) = ∫ (x − E[X])² f(x) dx
+        </p>
+        Expectation values and variances summarize the central tendency and dispersion of astronomical measurements and form the basis for uncertainty propagation.
+        <p>
+          For independent measurements with Gaussian errors:
+          </p>
+          <p>
+          L(θ) = ∏<sub>i</sub> (1 / √(2πσ<sub>i</sub>²)) 
+                exp [ −(y<sub>i</sub> − m<sub>i</sub>(θ))² / (2σ<sub>i</sub>²) ]
+          </p>
+          <p>
+            Equivalently, the log-likelihood is:
+            </p>
+            <p>
+            ln L = −½ Σ [ (y<sub>i</sub> − m<sub>i</sub>)² / σ<sub>i</sub>² + ln(2πσ<sub>i</sub>²) ]
+            </p>
+        This is the statistical foundation of χ² fitting and weighted regression used throughout astronomy.
+        <p>
+          For photon counts <em>k</em>:
+          </p>
+          <p>
+          P(k | λ) = e<sup>−λ</sup> λ<sup>k</sup> / k!
+          </p>
+          For Poisson data, variance equals the mean (Var = λ), so Gaussian assumptions fail at low counts.
+          <p>
+            χ² = Σ (y<sub>i</sub> − m<sub>i</sub>)² / σ<sub>i</sub>²
+            </p>
+            Minimizing χ² is equivalent to maximizing the Gaussian likelihood. Confidence intervals are obtained from Δχ² thresholds
+            <p>
+              p = P(T ≥ T<sub>obs</sub> | H₀)
+              </p>
+              The p-value is the probability of observing a test statistic at least as extreme as the data under the null hypothesis.
+        <h3>Astro examples</h3>
+      <ul>
+        <li>Photon counting in X-ray astronomy</li>
+        <li>Confidence intervals on stellar magnitudes</li>
+        <li>Model comparison for spectral lines </li>
+      </ul>
+    </section>
+
+      <section class="card" id="nonparametrics">
+        <h2>2) Nonparametrics</h2>
+        Nonparametric methods relax strong assumptions about the underlying data distribution and are particularly valuable in astronomy, where distributions are often skewed, multimodal, or contaminated by outliers. Rank-based tests, such as the Wilcoxon and Mann–Whitney tests, rely on data ordering rather than absolute values and therefore remain robust when Gaussian assumptions fail.
+        The course emphasized that nonparametric methods trade some statistical efficiency for robustness. This tradeoff is often favorable in astronomical contexts, such as comparing properties of different stellar populations or galaxy samples with heterogeneous uncertainties and selection effects. Permutation tests extend this logic by constructing null distributions directly from the data, avoiding reliance on analytic approximations.  
+        <h3>What I learned</h3>
+        <p>
+          Nonparametric tests replace data values x<sub>i</sub> with their ranks R<sub>i</sub>.
+          </p>
+          Inference depends on ordering, not distribution shape, making methods robust to outliers and skewness.         
+          <p>
+            p ≈ (number of permutations with T ≥ T<sub>obs</sub>) / (total permutations)
+            </p>
+            The null distribution is generated directly from the data, not assumed analytically.      
+        <h3>Astro examples</h3>
+        <ul>
+          <li>Comparing stellar metallicity distribution</li>
+          <li>Galaxy size comparisons across environments</li>
+          <li>Permutation tests for variability detection</li>
+        </ul>
+      </section>
+
+      <section class="card" id="regression">
+        <h2>3) Regression</h2>
+        Regression analysis connects physical models to observational data by estimating relationships between variables. In astronomy, regression often involves heteroscedastic uncertainties, intrinsic scatter, and correlated errors. The course covered linear regression as a baseline while emphasizing that naive least-squares fitting can fail when uncertainties vary between data points or exist in both dependent and independent variables.
+        Weighted regression incorporates known measurement uncertainties and leads naturally to chi-square minimization and maximum likelihood estimation. Residual analysis plays a central role in diagnosing model inadequacy, revealing unmodeled physical effects, systematic errors, or incorrect noise assumptions. The book stresses that regression parameters should not be interpreted without assessing goodness-of-fit and uncertainty propagation.
+        <h3>What I learned</h3>
+        <p>
+          y = α + βx + ε, &nbsp;&nbsp; ε ~ N(0, σ²)
+          </p>
+          <p>
+            χ²(α,β) = Σ (y<sub>i</sub> − α − βx<sub>i</sub>)² / σ<sub>i</sub>²
+            </p>
+            Weighting by σᵢ is essential when measurement errors vary between data points.
+
+            <p>
+              σ<sub>tot</sub>² = σ<sub>meas</sub>² + σ<sub>int</sub>²
+              </p>
+              Astrophysical variability often exceeds measurement noise; ignoring intrinsic scatter biases fits.
+        <h3>Astro examples</h3>
+        <ul>
+          <li>Mass–luminosity relation for stars</li>
+          <li>Blackbody fitting to stellar photometry</li>
+          <li>Star-formation scaling relations</li>
+        </ul>
+      </section>
+    </div>
+
+      <section class="card" id="smoothing">
+        <h2>4) Data Smoothing</h2>
+        Smoothing techniques aim to reveal underlying trends by reducing high-frequency noise without imposing rigid parametric models. In astronomy, smoothing is frequently applied to light curves, rotation curves, and spatial profiles. The course emphasized the bias–variance tradeoff: excessive smoothing obscures real structure, while insufficient smoothing leaves noise-dominated features.
+        Methods such as moving averages, LOESS, and spline smoothing provide flexible tools whose performance depends on bandwidth or smoothing parameters. Choosing these parameters requires physical intuition and diagnostic checks, as smoothing implicitly assumes a characteristic scale for real variation in the data.
+        <h3>What I learned</h3>
+        <p>
+          MSE = Bias² + Variance
+          </p>
+          Smoothing reduces variance at the cost of bias; optimal smoothing balances both.
+          <p>
+            ŷ(x₀) = Σ w<sub>i</sub>(x₀) y<sub>i</sub>
+            </p>
+            Nearby points contribute more strongly than distant ones.      
+        <h3>Astro examples</h3>
+        <ul>
+          <li>Smoothing galaxy rotation curves</li>
+          <li>Light-curve detrending</li>
+          <li>Spectral continuum estimation</li>
+        </ul>
+      </section>
+
+      <section class="card" id="pca">
+        <h2>5) Multivariate Analysis & PCA</h2>
+        Modern astronomical surveys measure many correlated variables simultaneously, motivating multivariate statistical techniques. Principal Component Analysis (PCA) reduces dimensionality by transforming correlated variables into orthogonal components that capture maximal variance. These components often correspond to physically meaningful trends, such as stellar temperature sequences or spectral variation modes.
+        The course emphasized careful preprocessing, including centering and scaling, since PCA is sensitive to variable units and normalization. Interpretation requires examining both the explained variance and the loading vectors to connect statistical components to astrophysical processes.
+        <h3>What I learned</h3>
+        <p>
+          Σ = (1 / (n − 1)) Xᵀ X
+          </p>
+          <p>
+            Σ v<sub>k</sub> = λ<sub>k</sub> v<sub>k</sub>
+            </p>
+            Eigenvectors → principal components
+          </p>
+            Eigenvalues → variance explained      
+            <p>
+              Fraction explained = λ<sub>k</sub> / Σ λ<sub>i</sub>
+              </p>
+               
+        <h3>Astro examples</h3>
+        <ul>
+          <li>PCA on stellar spectra</li>
+          <li>Galaxy classification</li>
+          <li>Photometric redshift estimation</li>
+        </ul>
+      </section>
+    </div>
+
+    <section class="card" id="timeseries">
+      <h2>6) Time Series Analysis</h2>
+      Astronomical time series frequently exhibit correlated noise, irregular sampling, and non-stationary behavior. Standard statistical methods assuming independent data points often fail in this context. The course focused on autocorrelation, characteristic timescales, and the identification of periodic or quasi-periodic signals.
+      Understanding noise structure is essential for reliable inference, particularly in variability studies and exoplanet detection. Distinguishing physical signals from red noise requires careful modeling and simulation-based validation.
+      <h3>What I learned</h3>
+      <p>
+        ACF(τ) = ⟨ x(t) x(t + τ) ⟩
+        </p>
+        Time series points are correlated; independence assumptions break down.
+        <p>
+          P(f) = |X(f)|²
+          </p>
+          Identifies periodic or quasi-periodic signals
+      <h3>Astro examples</h3>
+      <ul>
+        <li>Exoplanet transit light curves</li>
+        <li>Estellar variability and classification</li>
+        <li>AGN variability</li>
+      </ul>
+    </section>
+
+    <section class="card" id="clustering">
+      <h2>7) Clustering</h2>
+      Clustering methods group data based on similarity without predefined labels, enabling discovery of structure in large astronomical datasets. Applications include stellar population analysis, galaxy classification, and identification of variable star types. The course emphasized that clustering results are not unique and depend strongly on distance metrics, scaling, and algorithm choice.
+      Physical interpretation remains essential: clusters must be validated against astrophysical expectations rather than accepted as purely statistical artifacts.
+      <h3>What I learned</h3>
+      <p>
+        Most clustering methods depend on a distance between points x and y. A common choice is Euclidean distance:
+        </p>
+        <p>
+        d(x,y) = √( Σ<sub>j</sub> (x<sub>j</sub> − y<sub>j</sub>)² )
+        </p>
+        Scaling matters: if features have different units, standardize them first.
+        </p>
+        <p>
+          In k-means, we choose cluster assignments to minimize the within-cluster sum of squares:
+          </p>
+          <p>
+          J = Σ<sub>k=1</sub><sup>K</sup> Σ<sub>i ∈ C<sub>k</sub></sub> ‖x<sub>i</sub> − μ<sub>k</sub>‖²
+          </p>
+          <p>
+          where μ<sub>k</sub> is the mean (centroid) of cluster k.
+          </p>
+          k-means is literally “pick centroids so points are as close as possible to their cluster center.”    
+          <p>
+            μ<sub>k</sub> = (1 / |C<sub>k</sub>|) Σ<sub>i ∈ C<sub>k</sub></sub> x<sub>i</sub>
+            </p>
+            <p>
+              Hierarchical clustering needs a distance between clusters A and B. For example, average linkage:
+              </p>
+              <p>
+              d(A,B) = (1 / (|A||B|)) Σ<sub>x∈A</sub> Σ<sub>y∈B</sub> d(x,y)
+              </p>
+              <p>
+                One way to pick the number of clusters is the silhouette score. For point i:
+                </p>
+                <p>
+                s(i) = (b(i) − a(i)) / max{a(i), b(i)}
+                </p>
+               
+                a(i) = mean distance from i to its own cluster; b(i) = smallest mean distance to a different cluster.
+                Values near 1 indicate good clustering.
+                </p>
+                              
+      <h3>Astro examples</h3>
+      <ul>
+        <li>Stellar population identification</li>
+        <li>Variable star classification</li>
+        <li>Galaxy environment studies</li>
+      </ul>
+    </section>
+
+    <section class="card" id="truncated">
+      <h2>8) Truncated Data (Censoring, Non-detections, Selection Effects)</h2>
+      Truncation and censoring arise naturally in astronomy due to detection limits and selection effects. Ignoring non-detections biases parameter estimates and distorts inferred distributions. The course emphasized that truncation is a statistical property of the dataset, not a nuisance to be discarded.
+      Likelihood-based approaches and survival-analysis concepts provide principled ways to incorporate upper limits and incomplete data. These methods are essential for flux-limited surveys and faint-source studies.
+      <h3>What I learned</h3>
+      <p>
+        L = ∏ f(x<sub>i</sub>) / P(x ≥ x<sub>lim</sub>)
+        </p>
+        The denominator corrects for selection effects and must not be ignored.    
+      <h3>Astro example</h3>
+      <ul>
+        <li>Flux-limited surveys</li>
+        <li>Upper limits in molecular line observations</li>
+        <li>Exoplanet detection bias</li>
+      </ul>
+    </section>
+
+    <section class="card" id="spatial">
+      <h2>9) Spatial Point Processes</h2>
+      Spatial point processes model the spatial distribution of discrete objects such as stars, galaxies, or transient events. The course introduced complete spatial randomness (CSR) as a null hypothesis and emphasized summary statistics such as the K, L, and G functions to quantify clustering or inhibition.
+      Edge effects and observational windows play a crucial role in spatial inference, requiring careful correction and simulation. These methods allow astronomers to test physical theories of structure formation and environmental influence.
+      <h3>What I learned</h3>
+      Ripley’s K-function
+      <p>
+        K(r) = (1 / λ) E[number of points within distance r]
+        </p>
+    L-function
+    <p>
+      L(r) = √(K(r) / π)
+      </p>
+      L(r) > r → clustering
+    </p>
+      L(r) < r → inhibition
+      
+      <h3>Astro examples</h3>
+      <ul>
+        <li>Star cluster structure</li>
+        <li>Galaxy clustering</li>
+        <li>Transient event localization</li>
+      </ul>
+    </section>
+
+    <section class="card" id="fourier">
+      <h2>10) Wavelets & Fourier Transforms</h2>
+      Fourier analysis decomposes signals into global frequency components and is well-suited for stationary processes. Wavelets extend this framework by providing localized time–frequency analysis, making them ideal for transient or evolving signals. The course emphasized selecting the appropriate tool based on signal characteristics.
+      In astronomy, wavelets are particularly useful for detecting localized features such as flares or bursts, while Fourier methods excel at identifying persistent periodicities.
+      <h3>What I learned</h3>
+      Fourier Transform
+      <p>
+        X(f) = ∫ x(t) e<sup>−2πift</sup> dt
+        </p>
+      Wavelet Transform
+      <p>
+        W(a,b) = ∫ x(t) ψ((t − b)/a) dt
+        </p>
+        Wavelets preserve time localization; Fourier does not.  
+      <h3>Astro examples</h3>
+      <ul>
+        <li>Periodicity in variable stars</li>
+        <li>Solar flare detection</li>
+        <li>Quasi-periodic oscillations</li>
+      </ul>
+    </section>
+
+   
+  </main>
+
+</body>
+</html>
+
